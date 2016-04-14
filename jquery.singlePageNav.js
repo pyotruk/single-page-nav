@@ -40,6 +40,16 @@ if (typeof Object.create !== 'function') {
             this.didScroll = false;
             this.checkPosition();
             this.setTimer();
+
+            // scroll to current hash location
+            if (location.hash) {
+                var curLink = this.$links.filter(function () {
+                    return this.hash === location.hash;
+                });
+                if (curLink.length) this.handleClick({
+                    currentTarget: curLink[0], preventDefault: function () {}
+                });
+            }
         },
 
         handleClick: function(e) {
