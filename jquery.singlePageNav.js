@@ -34,7 +34,13 @@ if (typeof Object.create !== 'function') {
 
             this.$window = $(window);
             this.$htmlbody = $('html, body');
-            
+
+            // FIX for FF and Safari 5.1
+            // prevents location change by <a> click
+            this.$links.on('click', function (e) {
+                e.stopPropagation();
+            });
+
             this.$links.on('click.singlePageNav', $.proxy(this.handleClick, this));
 
             this.didScroll = false;
@@ -53,9 +59,11 @@ if (typeof Object.create !== 'function') {
         },
 
         handleClick: function(e) {
-            var self  = this,
-                link  = e.currentTarget,
-                $elem = $(link.hash);
+            var self = this,
+                link = e.currentTarget;
+
+            var hash = decodeURI(link.hash),
+                $elem = $(hash);
 
             e.preventDefault();             
 
@@ -69,12 +77,12 @@ if (typeof Object.create !== 'function') {
                     self.options.beforeStart();
                 }
 
-                self.setActiveLink(link.hash);
+                self.setActiveLink(hash);
                 
                 self.scrollTo($elem, function() { 
 
                     if (self.options.updateHash && history.pushState) {
-                        history.pushState(null,null, location.pathname + link.hash);
+                        history.pushState(null,null, location.pathname + hash);
                     }
 
                     self.setTimer();
@@ -156,7 +164,7 @@ if (typeof Object.create !== 'function') {
             var i, hash, coords, section;
             
             for (i = 0; i < this.$links.length; i++) {
-                hash = this.$links[i].hash;
+                hash = decodeURI(this.$links[i].hash);
                 
                 if ($(hash).length) {
                     coords = this.getCoords($(hash));
@@ -168,7 +176,7 @@ if (typeof Object.create !== 'function') {
             }
             
             // The current section or the first link if it is found
-            return section || ((this.$links.length===0) ? (null) : (this.$links[0].hash));
+            return section || ((this.$links.length===0) ? (null) : (decodeURI(this.$links[0].hash)));
         }
     };
     
